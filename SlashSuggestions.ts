@@ -274,6 +274,28 @@ export default class SlashSuggestions extends EditorSuggest<SuggestionObject> {
 	constructor(app: SlashSnippetPlugin) {
 		super(app.app);
 		this.plugin = app;
+		
+		// Setup custom accept key bindings
+		this.setupAcceptKeys();
+	}
+
+	private setupAcceptKeys() {
+		const acceptKey = this.plugin.settings.acceptKey;
+
+		const selectItem = (evt: KeyboardEvent) => {
+			// @ts-ignore - access internal suggest
+			this.suggestions?.useSelectedItem(evt);
+			return false;
+		};
+
+		// Register based on setting
+		if (acceptKey === 'tab' || acceptKey === 'tab-space') {
+			this.scope.register([], 'Tab', selectItem);
+		}
+		if (acceptKey === 'space' || acceptKey === 'tab-space') {
+			this.scope.register([], ' ', selectItem);
+		}
+		// Note: Enter is registered by default by Obsidian
 	}
 
 	public unload(): void {

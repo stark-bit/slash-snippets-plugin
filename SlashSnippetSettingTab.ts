@@ -35,6 +35,22 @@ export default class SlashSnippetSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
+			.setName("Accept key")
+			.setDesc("Key to accept a snippet from the suggestion list (requires reload)")
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOption('enter', 'Enter')
+					.addOption('tab', 'Tab')
+					.addOption('space', 'Space')
+					.addOption('tab-space', 'Tab and Space')
+					.setValue(this.plugin.settings.acceptKey)
+					.onChange(async (value) => {
+						this.plugin.settings.acceptKey = value as 'enter' | 'tab' | 'space' | 'tab-space';
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
 			.setName("Fuzzy Search")
 			.setDesc("You don’t have to type the exact name." +
 				"If the letters appear in the right order, it will match." +

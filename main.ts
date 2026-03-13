@@ -6,6 +6,7 @@ import SlashSuggestions from "./SlashSuggestions";
 
 interface SlashSnippetSettings {
 	slashTrigger: string;
+	acceptKey: 'enter' | 'tab' | 'space' | 'tab-space';
 	fuzzySearch: boolean;
 	highlight: boolean;
 	showPath: boolean;
@@ -22,6 +23,7 @@ interface SlashSnippetSettings {
 
 const DEFAULT_SETTINGS: SlashSnippetSettings = {
 	slashTrigger: "/",
+	acceptKey: "enter",
 	fuzzySearch: true,
 	highlight: true,
 	showPath: false,
