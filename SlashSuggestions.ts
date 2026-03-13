@@ -7,6 +7,7 @@ import {
 	TFile
 } from "obsidian";
 import SlashSnippetPlugin, {SuggestionObject} from "./main";
+import {parseCustomKeys, ParsedKey} from "./SlashSnippetSettingTab";
 
 export default class SlashSuggestions extends EditorSuggest<SuggestionObject> {
 	private plugin: SlashSnippetPlugin;
@@ -280,7 +281,7 @@ export default class SlashSuggestions extends EditorSuggest<SuggestionObject> {
 	}
 
 	private setupAcceptKeys() {
-		const acceptKey = this.plugin.settings.acceptKey;
+		const preset = this.plugin.settings.acceptKeyPreset;
 
 		const selectItem = (evt: KeyboardEvent) => {
 			// @ts-ignore - access internal suggest
@@ -288,14 +289,37 @@ export default class SlashSuggestions extends EditorSuggest<SuggestionObject> {
 			return false;
 		};
 
-		// Register based on setting
-		if (acceptKey === 'tab' || acceptKey === 'tab-space') {
-			this.scope.register([], 'Tab', selectItem);
+		// Get keys to register based on preset
+		let keysToRegister: ParsedKey[] = [];
+
+		switch (preset) {
+			case 'enter':
+				// Enter is registered by default by Obsidian, nothing to do
+				break;
+			case 'tab':
+				keysToRegister = [{ modifiers: [], key: 'Tab' }];
+				break;
+			case 'tab-space':
+				keysToRegister = [
+					{ modifiers: [], key: 'Tab' },
+					{ modifiers: [], key: ' ' }
+				];
+				break;
+			case 'custom':
+				const customKeys = this.plugin.settings.customAcceptKeys;
+				if (customKeys) {
+					const result = parseCustomKeys(customKeys);
+					if (result.valid) {
+						keysToRegister = result.keys;
+					}
+				}
+				break;
 		}
-		if (acceptKey === 'space' || acceptKey === 'tab-space') {
-			this.scope.register([], ' ', selectItem);
+
+		// Register all keys
+		for (const key of keysToRegister) {
+			this.scope.register(key.modifiers, key.key, selectItem);
 		}
-		// Note: Enter is registered by default by Obsidian
 	}
 
 	public unload(): void {
